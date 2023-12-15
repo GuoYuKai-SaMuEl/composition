@@ -1,3 +1,4 @@
+const form = document.getElementById('form');
 const apikey = document.getElementById('api-key');
 const composition = document.getElementById('composition');
 const submit = document.getElementById('submit');
@@ -34,6 +35,6 @@ body: JSON.stringify({
   console.error('Error:', error);
 });
 }
-submit.addEventListener('click', () => {
+form.addEventListener('submit', () => {
   req();
 });
