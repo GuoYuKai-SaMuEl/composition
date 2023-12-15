@@ -35,6 +35,6 @@ body: JSON.stringify({
   console.error('Error:', error);
 });
 }
-form.addEventListener('submit', () => {
+submit.addEventListener('click', () => {
   req();
 });
