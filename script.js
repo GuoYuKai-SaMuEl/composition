@@ -1,86 +1,39 @@
-const form = document.getElementById('form');
-const username = document.getElementById('username');
-const email = document.getElementById('email');
-const password = document.getElementById('password');
-const password2 = document.getElementById('password2');
-
-// Show input error message
-function showError(input, message) {
-  const formControl = input.parentElement;
-  formControl.className = 'form-control error';
-  const small = formControl.querySelector('small');
-  small.innerText = message;
-}
-
-// Show success outline
-function showSuccess(input) {
-  const formControl = input.parentElement;
-  formControl.className = 'form-control success';
-}
-
-// Check email is valid
-function checkEmail(input) {
-  const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  if (re.test(input.value.trim())) {
-    showSuccess(input);
-  } else {
-    showError(input, 'Email is not valid');
+const apikey = document.getElementById('api-key');
+const composition = document.getElementById('composition');
+const submit = document.getElementById('submit');
+const result = document.getElementById('result');
+function req() {
+console.log(apikey.value);
+console.log(`Provide suggestions for improving the following English composition. The sentences do not need to be complicated or the wording is difficult, but the meaning should be smooth, the grammar correct, and the meaning of the text should be the same as the original text. First only provide the parts that can be improved, and then rewrite the article. In addition, provide the improvement part and propose as many improvement options as possible. The following is composition that requires suggestions:\n ${composition.value}`);
+const key=apikey.value;
+fetch('https://api.openai.com/v1/chat/completions',{
+  method: 'POST',
+headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${key}`
+},
+body: JSON.stringify({
+  "model": "gpt-3.5-turbo",
+  "messages": [{
+      "role": "system",
+      "content": "You are ChatGPT, a helpful assistant."
+  }, {
+      "role": "user",
+      "content": `Provide suggestions for improving the following English composition. The sentences do not need to be complicated or the wording is difficult, but the meaning should be smooth, the grammar correct, and the meaning of the text should be the same as the original text. First only provide the parts that can be improved, and then rewrite the article. In addition, provide the improvement part and propose as many improvement options as possible. The following is composition that requires suggestions:\n${composition.value}`
+  }]
+})
+}).then(response => {
+  if(!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
   }
+  return response.json();
+}).then(data => {
+  console.log(data.choices[0].message.content);
+  result.textContent=data.choices[0].message.content;
+}).catch(error => {
+  console.error('Error:', error);
+});
 }
-
-// Check required fields
-function checkRequired(inputArr) {
-  let isRequired = false;
-  inputArr.forEach(function(input) {
-    if (input.value.trim() === '') {
-      showError(input, `${getFieldName(input)} is required`);
-      isRequired = true;
-    } else {
-      showSuccess(input);
-    }
-  });
-
-  return isRequired;
-}
-
-// Check input length
-function checkLength(input, min, max) {
-  if (input.value.length < min) {
-    showError(
-      input,
-      `${getFieldName(input)} must be at least ${min} characters`
-    );
-  } else if (input.value.length > max) {
-    showError(
-      input,
-      `${getFieldName(input)} must be less than ${max} characters`
-    );
-  } else {
-    showSuccess(input);
-  }
-}
-
-// Check passwords match
-function checkPasswordsMatch(input1, input2) {
-  if (input1.value !== input2.value) {
-    showError(input2, 'Passwords do not match');
-  }
-}
-
-// Get fieldname
-function getFieldName(input) {
-  return input.id.charAt(0).toUpperCase() + input.id.slice(1);
-}
-
-// Event listeners
-form.addEventListener('submit', function(e) {
-  e.preventDefault();
-
-  if(checkRequired([username, email, password, password2])){
-    checkLength(username, 3, 15);
-    checkLength(password, 6, 25);
-    checkEmail(email);
-    checkPasswordsMatch(password, password2);
-  }
-
+submit.addEventListener('click', () => {
+  req();
 });
