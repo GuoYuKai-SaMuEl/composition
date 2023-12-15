@@ -35,6 +35,3 @@ body: JSON.stringify({
   console.error('Error:', error);
 });
 }
-submit.addEventListener('click', () => {
-  req();
-});
